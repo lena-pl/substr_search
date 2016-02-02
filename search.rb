@@ -1,10 +1,12 @@
-str = "This is an example of how many occurances of the substring 'of' exist in this long string of words."
-pattern = "of"
+require 'pry'
+
+str = File.read("haystack.txt")
+@pattern = "the"
 counter = 0
 
-while str.include?(pattern)
+while str.include?(@pattern)
   counter += 1
-  str = str.match(pattern).post_match
+  str = str.match(@pattern).post_match
 end
 
 puts counter

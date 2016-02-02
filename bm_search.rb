@@ -16,13 +16,7 @@ end
 
 def move_by_value(pattern, key)
   # max (1, length - 1 - index)
-  value = pattern.length - 1 - last_index_of(pattern, key)
-
-  if value < 1
-    1
-  else
-    value
-  end
+  value = [pattern.length - 1 - last_index_of(pattern, key), 1].max
 end
 
 def last_index_of(pattern, char)
@@ -35,18 +29,28 @@ end
 # =============================
 
 def horspool(pattern, text)
+  # print text
   # start at the first char
   # compare last char of pattern with corresponding char of text
   pattern_index = position = pattern.length - 1
 
-  # text = "blahblahblahbloop" => 16
-  # pattern = "bloop" => 5
-  while text.length - position >= pattern.length
-    # binding.pry
+  visits = Hash.new(false)
+
+  while text.length - position >= pattern.length - (pattern.length - 2)
+
+    if visits[[position, pattern_index]]
+      while text[position] == pattern.chars.last
+        position += 1
+      end
+      pattern_index = pattern.length - 1
+    else
+      visits[[position, pattern_index]] = true
+    end
+
     if text[position] == pattern[pattern_index]
       #match
       #are all characters matched?
-      if pattern_index == 0
+      if pattern_index == 0 || pattern_index == - pattern.length
         return position
       end
       #compare next char
@@ -64,10 +68,8 @@ def horspool(pattern, text)
       pattern_index = pattern.length - 1
     end
   end
-end
 
-# print bc_table
-# print horspool("db", "abcdbbadcc")
+end
 
 # =============================
 # looping search and count
@@ -77,12 +79,18 @@ def occurances_count(text, pattern)
   text = text
   counter = 0
 
-  while text.include?(pattern)
-    counter += 1
-    print "#{counter} "
+  loop do
 
-    last_found_index = horspool(pattern, text) + pattern.length
-    text = text[last_found_index..-1]
+    hors = horspool(pattern, text)
+
+
+    if hors
+      last_found_index = hors + pattern.length
+      text = text[last_found_index..-1]
+      counter += 1
+    else
+      return counter
+    end
   end
 
   counter
@@ -90,6 +98,6 @@ end
 
 haystack = File.read("haystack.txt")
 
-needle = "the"
+needle = "\""
 
 puts "RESULT: #{occurances_count(haystack, needle)}"
